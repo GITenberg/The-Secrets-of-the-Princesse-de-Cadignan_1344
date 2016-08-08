@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: UBSlKHtM6KiMF66I5fd9hiB+wWRuDT7r2541S5h9RDU01i5q0E1nBt6Y9o3A2FqKWBkxJC5+CuyhxTKb4dGeDmFIRLAzaZvZKh7FcIiE9j1xQkZoholerOp3BZkMPQjlsPg6S3+A3DPTlA8q2LkeIZxjj8SdsAbEBiy6yMlXNMo73Hvcs/I3S/101JF5rHf86Fh5RrR+fCtX/heYUXL3obc+olHs6rktgeCCCYAoji7LFx09Fhf30bGaJ80vxUQ6/GNr3/FIGYq5U/umlyGWIrMChsbE6l+vriGDodSOjjs+ReLHxeg0orsPbMsPYPoQbLzy7vacXejEPTbZxJjgyGu5uuwOM/wbSNO3K8XxLt8BiN2CpDqUarp+UGwFGUSiBOKKqNc7QXib6iyFS9G3YeAJ7umYNO2tBx1kkC6Bs9Rxt2e/myv950nd7uFa5Jdne84EzjdcMCS67arDTxPCDvRCccJYN7Iz6c+Y80Y7GFsftLo+HQpkKsJuw4pLNiJ6D+i/8pql0fMcQ5IRrvdkpSl3iME3IpnIsUzMLo1uZVwDoE0uzz9uHMx4oS6U/3pdFyJG4/J3TxMeO/f0KajnCHbe+PtCs6SYV6nn4pgY+mX3THwXYNIQezex2S3oEvAhDTPvvQpBJde6B1aTp72eQr+GL4Km9aH27h1KmyEcukY=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Secrets-of-the-Princesse-de-Cadignan_1344
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
